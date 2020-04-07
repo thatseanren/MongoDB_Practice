@@ -1,9 +1,10 @@
+/* mongod --dbpath=/Users/rensiyang/Documents/data/db */
 var mongoose = require('mongoose');
 
 var MongoClient = require('mongodb').MongoClient
 const assert = require('assert')
 
-const url = 'mongodb://localhost:27017/db'
+const url = 'mongodb://localhost:27017'
 
 const chalk = require('chalk')
 
@@ -11,43 +12,38 @@ const client = new MongoClient(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-const dbName = 'db';
+const dbName = 'MongoDB_1';
 
 client.connect(function (err) {
     assert.equal(null, err);
     console.log("Connected successfully to server")
 
     const db = client.db(dbName);
-    console.log( chalk.red("Performing ") + "insertDocuments into " + chalk.blue(url+'/collection'))
-    insertDocuments(db, (result) => {
+    console.log(chalk.red("Performing ") + "insertDocuments into " + chalk.blue(url + `${db}`))
+    console.log(db)
+    const collection = db.collection('myProgress')
+    collection.insertOne({
+        algorithm: {
+             name: 'ThreeNumSum_', 
+             question:'null'
+        }, 
+        back_end:{
+             name: 'MongoDB',
+             detail:'storeing Object into db',
+             question: 'null',
+        },
+        project: {
+             name: 'progress_logger',
+             detail: 'complete plan of progress_logger architect',
+             question: 'null' 
+        } 
+    }).then((result) => {
         console.log(`result returned by insertDocuments():${result}, ${chalk.italic('typeof result')} ${typeof result} \n`)
-        updateDocuments(db,()=>{client.close()})
+       client.close()
         
     })
 })
 
-function updateDocuments(db, cb) {
-    const collection = db.collection('documents');
-
-    collection.updateOne({ a: 2 }, { $set: { b: 1 } }, function (err, result) {
-        assert.equal(null, err);
-        assert.equal(0, result.result.n);
-        console.log("Updated the documents with field {a:2} ")
-        cb(result)
-    })  
-}
-function insertDocuments (db, callback) {
-    const collection = db.collection('documents')
-    collection.insertMany([
-        { a: 1 }, { b: 2 }, { c: 3 }
-    ], function (err, result) {
-        assert.equal(err, null)
-        assert.equal(3, result.result.n)
-        assert.equal(3, result.ops.length);
-        console.log("Inserted 3 documents into the collection")
-        callback(result)
-    })
-}
 
 {
     var Schema = mongoose.Schema;
